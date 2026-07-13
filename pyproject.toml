@@ -1,0 +1,15 @@
+[project]
+name = "space-backend"
+version = "0.1.0"
+description = "Vereinfachtes FastAPI-Backend für Space-Game Scores"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.138.0",
+]
+
+[tool.setuptools]
+py-modules = ["database"]
+
+[tool.setuptools.packages.find]
+where = ["."]
