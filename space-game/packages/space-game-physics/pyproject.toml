@@ -1,0 +1,16 @@
+[project]
+name = "space-game-physics"
+version = "0.1.0"
+description = "Einfacher pymunk-Wrapper für space-game"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pymunk>=7.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/space_game_physics"]
