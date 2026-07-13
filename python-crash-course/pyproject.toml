@@ -1,0 +1,9 @@
+[project]
+name = "python-crash-course"
+version = "0.2.0"
+description = "Hands-on Python crash course"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=7.3.0",
+]
