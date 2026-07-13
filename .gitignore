@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Lokale Geräte-ID (Aufgabe 9)
+device_id.txt
