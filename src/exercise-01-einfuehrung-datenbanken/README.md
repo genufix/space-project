@@ -75,7 +75,7 @@ Es gibt nicht nur eine Art von Datenbank. Die zwei häufigsten:
 - Beispiele: MongoDB, Firebase
 - Für unseren Kurs nicht nötig
 
----
+---+
 
 ## Mini-Übung 1: Tabelle auf Papier entwerfen
 
