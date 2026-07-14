@@ -153,7 +153,7 @@ async function updateScore() {
 ---
 
 ## Herzlichen Glückwunsch
-Du solltest nun ein funktionierens Frontend haben, das die Spielerdaten aus der Datenbank anzeigt. 
+Du solltest nun ein funktionierendes Frontend haben, das die Spielerdaten aus der Datenbank anzeigt. 
 Damit hast du die wichtigsten Grundlagen für die Webentwicklung kennen gelernt.
 Die folgenden Übungen zeigen dir wie du dein Frontend noch besser machen kannst. 
 Schau sie dir gerne an oder experimentiere mit dem bisher gelernten und probiere deine Webseite so zu 
