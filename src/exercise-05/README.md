@@ -72,7 +72,7 @@ function renderScoreboard(scores) {
         const tr = document.createElement('tr');
         tr.innerHTML =
             '<td>' + (idx + 1) + '</td>' +
-            '<td>' + entry.spielername + '</td>' +
+            '<td>' + entry.name + '</td>' +
             '<td>' + entry.score + '</td>';
         tbody.appendChild(tr);
     });

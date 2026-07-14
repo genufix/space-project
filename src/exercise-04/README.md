@@ -49,9 +49,9 @@ Lege in einer neuen Datei `scoreboard.js` ein Array mit Objekten an, z.B.:
 
 ```js
 const scores = [
-    { spielername: "Alice", score: 1200 },
-    { spielername: "Bob", score: 950 },
-    { spielername: "Charlie", score: 800 }
+    { name: "Alice", score: 1200 },
+    { name: "Bob", score: 950 },
+    { name: "Charlie", score: 800 }
 ];
 ```
 
@@ -79,7 +79,7 @@ function renderScoreboard(scores) {
         var tr = document.createElement('tr');
         tr.innerHTML =
             '<td>' + (i + 1) + '</td>' +
-            '<td>' + entry.spielername + '</td>' +
+            '<td>' + entry.name + '</td>' +
             '<td>' + entry.score + '</td>';
         tbody.appendChild(tr);
     }
