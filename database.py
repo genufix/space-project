@@ -30,6 +30,3 @@ init_db()
 
 def calculate_score(asteroids_destroyed: int, time_lived: float) -> int:
     return asteroids_destroyed * 100 + int(time_lived)
-
-calculate_score(200,100)
-
