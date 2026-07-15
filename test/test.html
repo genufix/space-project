@@ -39,5 +39,16 @@
     <br>
     <button style="background-color: rgba(0, 255, 13, 0.745);"onclick="window.location.href='https://www.genua.de/';">Press Me to get to a cool website
     </button>
+    <br>
+     <button id="test" style="background-color: rgba(0, 60, 255, 0.445);"onclick="colorswitch()">Press Me!
+    </button>
 </body>
 </html>
+<script>
+   const getRandomHexColor=() => {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6,'0');
+  };
+  function colorswitch() {
+document.getElementById("test").style.backgroundColor = getRandomHexColor()
+  }
+</script>
