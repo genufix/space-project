@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Game Scoreboard</title>
+    <!-- Main stylesheet for scoreboard -->
+    <link rel="stylesheet" href="scoreboard.css">
+</head>
+<body>
+    <!-- Animated star background -->
+    <div id="star-bg"></div>
+    <!-- Scoreboard container with animated border -->
+    <div class="scoreboard-wrapper futuristic-border" id="scoreboard-container"> <!-- classes optional here -->
+
+        <h1>🚀 Space Game Scoreboard</h1>
+        <p class="description">See the top 10 players and their scores. The scoreboard updates in real-time.<br>Experiment with the theme toggle and discover fun facts!</p>
+        <div id="theme-toggle" class="theme-toggle">🌗 Switch Theme</div>
+        <div id="refresh-indicator" class="refresh-indicator">Last updated: <span id="last-updated">-</span></div>
+
+        <!-- Animated digital counter for top score -->
+        <div id="top-score-counter-container" class="top-score-counter-container">
+            <div class="top-score-counter-label">Top Score</div>
+            <div id="top-score-counter" class="top-score-counter">0</div>
+            <div id="top-score-congrats" class="top-score-congrats hidden"></div>
+        </div>
+
+        <!-- scoreboard -->
+        <div id="top-score-counter-container" class="top-score-counter-container">
+        <table id="scoreboard">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Scores will be populated here by scoreboard.js -->
+		<tr>
+			<td>testrank</td>
+			<td>testplayer</td>
+			<td>testscore</td>
+		</tr>
+            </tbody>
+        </table>
+
+	<!-- error and footer -->
+        <div id="error-message" class="hidden"></div>
+        <footer class="footer">&copy; 2026 Space Project &mdash; Powered by genua</footer>
+    </div>
+
+    <!-- Main JS for rendering scoreboard -->
+    <script src="scoreboard.js"></script>
+</body>
+</html> 
