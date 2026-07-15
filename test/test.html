@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
  
     <title>cool game </title>
-</head>
-<body style="background-color: lightblue;">
+    <link rel="stylesheet" href="scoreboard.css">
+  </head>
+<body>
    <h1>The Epic Game </h1>
    <br>
    <h3>Hello and welcome to the Epic Game website</h3>
@@ -40,8 +41,42 @@
     <button style="background-color: rgba(0, 255, 13, 0.745);"onclick="window.location.href='https://www.genua.de/';">Press Me to get to a cool website
     </button>
     <br>
-     <button id="test" style="background-color: rgba(0, 60, 255, 0.445);"onclick="colorswitch()">Press Me!
+     <button id="test" style="background-color: lightcoral;" onclick="colorswitch()">Press Me!</button>
+
+  <br>
+  <br>
+  <h2>The  Score Board</h2>
+<table style="background-color: rgb(104, 105, 176);">
+  <tr>
+    <th>Place/</th>
+    <th>Name/</th>
+    <th>Points</th>
+  </tr>
+  <tr style="color: gold;">
+    <td>18000</td>
+    <td>elias</td>
+     <td>50</td>
+  </tr>
+  <tr style="color: darkgrey;">
+    <td>19000</td>
+    <td>Toto</td>
+     <td>10</td>
+  </tr>
+  <tr style="color: rgb(196, 108, 14);">
+    <td>20000</td>
+    <td>stefan</td>
+     <td>5</td>
+  </tr>
+</table> 
+
+<br>
+<br> 
+<br>
+
+ <button style="background-color: rgba(75, 76, 147, 0.745);"onclick="">Press Me to get to a cool website
     </button>
+
+  
 </body>
 </html>
 <script>
@@ -49,6 +84,7 @@
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6,'0');
   };
   function colorswitch() {
-document.getElementById("test").style.backgroundColor = getRandomHexColor()
+document.getElementById("test").style.backgroundColor = getRandomHexColor();
+console.log("test");
   }
 </script>

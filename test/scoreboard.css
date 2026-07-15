@@ -1,0 +1,16 @@
+body {
+    background: #232526;
+    color: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.scoreboard-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px #0004;
+    max-width: 400px;
+    margin: 3em auto;
+    padding: 2em 2em 1em 2em;
+    text-align: center;
+}
