@@ -14,3 +14,107 @@ body {
     padding: 2em 2em 1em 2em;
     text-align: center;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.scoreboard {
+  width: min(520px, 100%);
+  background: linear-gradient(135deg, #6869B0, #3f3d86);
+  border-radius: 16px;
+  padding: 14px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+
+.score-header {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 0.7fr;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 0.7fr;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.place {
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.name {
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: capitalize;
+}
+
+.points {
+  text-align: right;
+  font-weight: 900;
+  font-size: 18px;
+  color: #ffd36a;
+}
+
+.pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.highlight-1 { background: rgba(255, 215, 0, 0.18); }
+.highlight-2 { background: rgba(180, 180, 180, 0.16); }
+.highlight-3 { background: rgba(255, 140, 0, 0.18); }
+
+@media (max-width: 420px) {
+  .score-header,
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .points {
+    grid-column: 1 / -1;
+    text-align: left;
+    margin-top: -4px;
+  }
+}
