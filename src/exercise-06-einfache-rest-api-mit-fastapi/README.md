@@ -15,10 +15,10 @@ uv sync
 ## Server starten
 
 ```bash
-uv run fastapi dev main.py
+uv run fastapi dev main.py --host 0.0.0.0
 ```
 
-Der Server läuft danach unter `http://127.0.0.1:8000`.
+Der Server läuft danach und hört auf allen Interfaces auf eingehende Anfragen. Unter `http://127.0.0.1:8000` kannst du das am Server direkt testen.
 
 > [!TIP]
 > Unter `http://127.0.0.1:8000/docs` steht eine automatisch generierte, interaktive API-Dokumentation zur Verfügung. Alle Endpoints können dort direkt getestet werden.
