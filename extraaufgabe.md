@@ -43,3 +43,8 @@ Alle Assetpacks, bei denen steht "Name your price" kann man trotzdem kostenlos h
 ## Für das Frontend: 
 
 Seid kreativ, baut Animationen ein oder auch eine auf kleine Displays angepasste Ansicht.
+
+
+- Bau die Funktion "Zeige die X besten Spieler" ein. Z.B. die 5 besten oder nur die 3 besten.
+- Baue einen Button ein, der alle Einträge aus der Tabelle löscht.
+- Speichere den besten Spieler im lokalen Speicher des Browser, so dass auch nach schließen und wieder öffnen der Eintrag noch vorhanden ist und angezeigt wird. (Tipp: localStorage property)
