@@ -16,20 +16,20 @@ class ShieldPowerUp(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface((32, 32), pygame.SRCALPHA)
 
-        # Generiert eine detaillierte, glühende Sci-Fi Orb-Textur
+        
         for radius in range(16, 0, -1):
             if radius > 12:
-                color = (0, 100, 255, int(150 * (1 - radius/16)))  # Äußerer Schein
+                color = (0, 100, 255, int(150 * (1 - radius/16)))  
             elif radius > 6:
-                color = (0, 180, 255, 200)  # Kern-Körper
+                color = (0, 180, 255, 200)  
             else:
-                color = (200, 240, 255, 255)  # Heller Energie-Kern
+                color = (200, 240, 255, 255)  
             pygame.draw.circle(self.image, color, (16, 16), radius)
 
-        # Ein kleiner weißer Licht-Reflex für 3D-Look
+        
         pygame.draw.circle(self.image, (255, 255, 255, 200), (11, 11), 3)
 
-        # Spawnt am Bildschirmrand, analog zur Logik der Asteroiden
+        
         edge = random.choice(["top", "bottom", "left", "right"])
         if edge == "top":
             x = random.randint(0, settings.WINDOW_WIDTH)
@@ -120,7 +120,7 @@ last_asteroid_spawn = 0
 asteroid_cooldown = 1000
 
 last_shield_spawn = pygame.time.get_ticks()
-shield_cooldown = 15000  # 15 Sekunden Cooldown für hohe Seltenheit
+shield_cooldown = 15000  
 
 api_client = ApiClient(settings.API_BASE_URL)
 device_id = get_device_id(settings.ASSETS_PATH / ".." / "device_id.txt")
@@ -147,7 +147,7 @@ shield_time_left = 0.0
 # -------------------- CAMERA SHAKE (HINZUGEFÜGT) --------------------
 shake_enabled = True
 shake_strength = 3.0   # wie stark (Pixel)
-shake_speed = 15.0      # nur für Gefühl/Feintuning
+shake_speed = 20.0      # nur für Gefühl/Feintuning
 last_player_center = player.rect.center
 player_movement_speed = 0.0
 shake_x = 0
@@ -171,9 +171,6 @@ while running:
   
     display_surface.fill((0, 0, 0))  # optional: verhindert Artefakte
 
-    # --- Shake-Speed aus tatsächlicher Positionsänderung ableiten (ohne Zugriff auf vx/vy) ---
-    # Wir nutzen die zuletzt bekannte Player-Position + dt.
-    # Wenn dt=0, kein Shake.
     if shake_enabled and delta_time > 0:
         cx, cy = player.rect.center
         dx = cx - last_player_center[0]
@@ -181,18 +178,18 @@ while running:
         player_movement_speed = math.hypot(dx, dy) / delta_time  # px/s
         last_player_center = (cx, cy)
 
-        # Ab welcher Geschwindigkeit Shake sichtbar wird:
-        t = min(player_movement_speed / 450.0, 1.0)  # 450 ist Feintuning
+        
+        t = min(player_movement_speed / 450.0, 1.0)  
         shake_amount = shake_strength * t
 
-        # Zufalls-Offset
+        
         shake_x = int((random.random() - 0.5) * 2 * shake_amount)
         shake_y = int((random.random() - 0.5) * 2 * shake_amount)
     else:
        
         shake_x, shake_y = 0, 0
 
-    # Hintergrund mit Offset
+    
     display_surface.blit(background, (shake_x, shake_y))
 
     time_lived = (pygame.time.get_ticks() - game_start_time) / 1000
