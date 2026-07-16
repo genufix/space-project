@@ -38,37 +38,34 @@ def start():
 
 @app.get("/hallo/{name}")
 def hallo(name: str):
-   return {"nachricht": f"Hallo, {name}!"}
-
+    return {"nachricht": f"Hallo, {name}!"}
 
 @app.get("/spieler")
-def alle_spieler():
+def get_alle_spieler():
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT id, name, device_id, score, level, datum FROM players")
         zeilen = cursor.fetchall()
-
+        
     return [
-        {
-            "id": z[0],
-            "name": z[1],
-            "device_id": z[2],
-            "score": z[3],
-            "level": z[4],
-            "datum": z[5],
+        { 
+            "id": z [0],
+          "name": z [1],
+          "device_id": z [2],
+          "score": z [3], 
+          "level": z [4],
+          "datum": z [5],         
         }
-        for z in zeilen
+        
+         for z in zeilen
     ]
 
-
-@app.get("/spieler/{spieler_id}")
-def ein_spieler(spieler_id: int):
+@app.get("/spieler{spieler_id}")
+def get_ein_spieler(spieler_id: int):
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, name, device_id, score, level, datum FROM players WHERE id = ?",
-            (spieler_id,),
-        )
+        cursor.execute("SELECT id, name, device_id, score, level, datum FROM players WHERE id = ?",
+            (spieler_id,))
         zeile = cursor.fetchone()
 
     if zeile is None:
@@ -84,9 +81,10 @@ def ein_spieler(spieler_id: int):
     }
 
 
-@app.post("/spieler", status_code=201)
-def register_player(device_id: str, name: str):
 
+
+@app.post("/spieler", status_code=201)
+def post_spieler(device_id: str ,name: str):
     now = datetime.now(timezone.utc).isoformat()
 
     with get_db() as conn:
@@ -115,35 +113,36 @@ def register_player(device_id: str, name: str):
         "level": None,
         "datum": now,
     }
-
-
 @app.put("/spieler/{spieler_id}/scores")
-def punkte_aendern(spieler_id: int, asteroids_destroyed: int, time_lived: float):
+def put_scores(spieler_id:int ,asteroids_destroyed: int,time_lived: float):
     try:
         score = calculate_score(asteroids_destroyed, time_lived)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     now = datetime.now(timezone.utc).isoformat()
-
+    
     with get_db() as conn:
-        cur = conn.cursor()
-
-        cur.execute("SELECT id FROM players WHERE id = ?", (spieler_id,))
-        if cur.fetchone() is None:
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT id FROM players WHERE id = ?", (spieler_id,))
+        if cursor.fetchone() is None:
             raise HTTPException(status_code=404, detail="Spieler nicht gefunden")
-
-        cur.execute(
-            "UPDATE players SET score = ?, datum = ? WHERE id = ?",
-            (score, now, spieler_id),
-        )
+    
+    
+        cursor.execute("""
+            UPDATE players
+            SET score = ?
+            datum = ?
+            WHERE id = ?
+        """,   (score,now,spieler_id))
         conn.commit()
-
-        cur.execute(
-            "SELECT id, name, device_id, score, level, datum FROM players WHERE id = ?",
+    
+    
+    cursor.execute("SELECT id, name, device_id, score, level, datum FROM players WHERE id = ?",
             (spieler_id,),
         )
-        zeile = cur.fetchone()
+    zeile = cursor.fetchone()
 
     return {
         "id": zeile[0],
@@ -154,9 +153,8 @@ def punkte_aendern(spieler_id: int, asteroids_destroyed: int, time_lived: float)
         "datum": zeile[5],
     }
 
-
 @app.get("/scores")
-def leaderboard(limit: int = 10):
+def leaderboard(limit: int = 15):
     with get_db() as conn:
         cur = conn.cursor()
         cur.execute(

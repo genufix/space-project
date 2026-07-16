@@ -28,5 +28,9 @@ def init_db():
 
 init_db()
 
-def calculate_score(asteroids_destroyed: int, time_lived: float) -> int:
-    return asteroids_destroyed * 100 + int(time_lived)
+#def calculate_score(asteroids_destroyed: int, time_lived: float) -> int:
+#    if (asteroids_destroyed < 0 or time_lived < 0):
+#        raise ValueError ("Keine negativen Werte")
+#    return asteroids_destroyed * 100 + int(time_lived)    
+
+#@app.get
