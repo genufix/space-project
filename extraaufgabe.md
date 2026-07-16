@@ -1,5 +1,5 @@
 ## Loguru - Bessereres Logging in python
------------------------------------------
+
 Neuen (!) Ordner mit neuer main.py Datei erstellen. In neuem Verzeichnis
 ```sh
 uv add loguru
@@ -18,10 +18,11 @@ In Quellen einlesen und einfach mal schauen wie weit ihr kommt
 
 [`youtube`](https://www.youtube.com/watch?v=9L77QExPmI0)
 
+<br>
 
 ## Für das Pygame: 
------------------------------------------
-Assets einfügen (Icons, Grafiken, Funktionen)
+
+Assets einfügen (Icons, Grafiken, Funktionen) z.b. von itch.io
 
 
 Hier muss man erst eine Nutzerkonto erstellen. Viele Packs sind leider kostenpflichtig. 
@@ -33,9 +34,12 @@ Alle Assetpacks, bei denen steht "Name your price" kann man trotzdem kostenlos h
 "No thanks, just take me to the downloads" unter download.
 
 
-https://itch.io/search?facets=c.2&q=space
+[`itch.io`](https://itch.io/search?facets=c.2&q=space)
 
+
+
+<br>
 
 ## Für das Frontend: 
------------------------------------------
+
 Seid kreativ, baut Animationen ein oder auch eine auf kleine Displays angepasste Ansicht.
