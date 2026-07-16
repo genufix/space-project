@@ -6,11 +6,55 @@
     <link rel="stylesheet" href="scoreboard.css">
   </head>
 <body>
+
+
+
+  <div class="custom-cursor"></div>
+
+<div class="content">
+    <h1>Interactive Magic</h1>
+    <button class="hover-target">Hover Me</button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    <h1>The Epic Game </h1>
    <br>
    <h3>Hello and welcome to the Epic Game website</h3>
-    <br>
-    <h2>The Score Board</h2>
+    
+   <h1>Your records</h1>   
+
+<table id="test" style="font-size: xx-large;" onclick="colorswitch()">
+  <tr>
+    <th> Your Scores</th>
+  </tr>
+  <tr style="color: gold;">
+    <td>1000</td>
+  </tr>
+   <tr style="color: silver;">
+    <td>890</td>
+  </tr>
+   <tr style="color: blue;">
+    <td>750</td>
+  </tr>
+</table>
+<br>
+
+<br>
+
+<h2>The Score Board</h2>
+<h2>Top 3</h2>
     <br>
 <table style="background-color: rgb(104, 105, 176);">
   <tr>
@@ -47,6 +91,8 @@
   <br>
   <br>
   <h2>The  Score Board</h2>
+   <h2>Last 3</h2>
+   <br>
 <table style="background-color: rgb(104, 105, 176);">
   <tr>
     <th>Place/</th>
@@ -89,6 +135,7 @@ document.getElementById("test").style.backgroundColor = getRandomHexColor();
 console.log("test");
   }
 </script>
+
 
 
 

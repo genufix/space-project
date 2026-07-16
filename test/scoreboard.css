@@ -1,7 +1,7 @@
 body {
-    background: #232526;
+   
     color: #ffffff;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Segoe UI  ', Arial, sans-serif;
     margin: 0;
     padding: 0;
 }
@@ -16,9 +16,45 @@ body {
 }
 
 
+body {
+    background-image: url('icon2.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+}
+
+
+body {
+  cursor: url('zeiger.png'), auto;
+}
+
+/* Gilt nur beim Hovern über Links oder Buttons */
+a, button {
+  cursor: url('hover-icon.svg') 12 12, pointer;
+}
 
 
 
+
+ body {
+      /*cursor: none;*/
+      cursor: none;
+      height: 100vh;
+      background-color: #111; /* Dunkler Hintergrund, damit man den roten Punkt sieht */
+    }
+    .custom-cursor {
+      width: 20px;
+      height: 20px;
+      background-color: #ff4757;
+      border-radius: 50%;
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 9999;
+    }
 
 
 
