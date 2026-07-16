@@ -10,7 +10,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 )
 
-from database import get_db
+from backendJP.database import get_db
 
 app = FastAPI()
 

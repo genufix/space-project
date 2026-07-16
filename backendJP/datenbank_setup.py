@@ -1,4 +1,4 @@
-from database import get_db
+from backendJP.database import get_db
 
 
 with get_db() as conn:
@@ -25,7 +25,7 @@ import sys
 import os
 from datetime import date
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from database import get_db
+from backendJP.database import get_db
 
 
 def score_speichern(name, device_id, score, level):

@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
 
-from database import get_db
+from backendJP.database import get_db
 
 def alle_scores_anzeigen():
     with get_db() as conn:

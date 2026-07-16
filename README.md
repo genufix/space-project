@@ -24,7 +24,7 @@ Dieses Projekt stellt eine moderne Python-Backend-API bereit, die Spiel-Scores s
 ## Dateistruktur
 - `main.py` – Hauptanwendung mit FastAPI, Datenbankmodellen und Endpunkten
 - `pyproject.toml` – Projekt-Konfiguration für uv
-- `.gitignore` – Git-Ignore-Regeln
+- `.gitignore` – Git-Ignore-Regelnscp
 
 
 ### Hinweise

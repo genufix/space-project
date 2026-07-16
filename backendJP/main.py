@@ -10,7 +10,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 )
 
-from database import get_db
+from backendJP.database import get_db
 
 app = FastAPI()
 
@@ -154,7 +154,7 @@ def put_scores(spieler_id:int ,asteroids_destroyed: int,time_lived: float):
     }
 
 @app.get("/scores")
-def leaderboard(limit: int = 15):
+def leaderboard(limit: int = 10):
     with get_db() as conn:
         cur = conn.cursor()
         cur.execute(
@@ -174,3 +174,4 @@ def leaderboard(limit: int = 15):
         }
         for r in rows
     ]
+
