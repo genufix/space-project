@@ -2,58 +2,79 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [number, setNumber] = useState(Math.floor(Math.random() * 100) + 1);
-  const [guess, setGuess] = useState("");
-  const [message, setMessage] = useState("");
+  const [input, setInput] = useState("");
+  const [todos, setTodos] = useState([]);
 
-  function checkGuess() {
-    const userGuess = Number(guess);
+  function addTodo() {
+    if (input.trim() === ""){
+      return;
+    };
 
-    if (userGuess === number) {
-      setMessage(" Richtig!");
-    } else if (userGuess > number) {
-      setMessage("⬇ Zu hoch!");
-    } else {
-      setMessage("⬆ Zu niedrig!");
-    }
+    const newTodo = {
+      id: Date.now(),
+      text: input,
+      done: false
+    };
+
+    setTodos([...todos, newTodo]);
+  
+  setInput("")
   }
 
-  function restart() {
-    setNumber(Math.floor(Math.random() * 100) + 1);
-    setGuess("");
-    setMessage("");
+  function deleteTodo(id) {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  }
+
+  function toggleTodo(id) {
+     const newTodos = todos.map((todo) => {
+    if (todo.id === id) {
+      return {
+        ...todo,
+        done: !todo.done,
+      };
+    }
+
+    return todo;
+  });
+
+  setTodos(newTodos);
+    
   }
 
   return (
-    <div className="app">
-      <div className="card">
-        <h1>Zahlen-Raten</h1>
+    <div style={{ padding: "20px" }}>
+      <h1>Meine To-Do-Liste</h1>
 
-        <p>Rate eine Zahl zwischen 1 und 100</p>
+      <input
+        type="text"
+        placeholder="Neue Aufgabe..."
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
 
-        <form onSubmit={(e) => {
-  e.preventDefault();
-  checkGuess();
-}}>
-  <input
-    type="number"
-    value={guess}
-    onChange={(e) => setGuess(e.target.value)}
-  />
+      <button onClick={addTodo}>Hinzufügen</button>
 
-  <button type="submit">
-    Prüfen
-  </button>
-</form>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <span>
+              {todo.text}
+            </span>
 
-        <h2>{message}</h2>
+            <button onClick={() => toggleTodo(todo.id)}>
+              Erledigt
+            </button>
 
-        <button onClick={restart}>
-          Neustart
-        </button>
-      </div>
+            <button onClick={() => deleteTodo(todo.id)}>
+              Löschen
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
+
+
 
 export default App;
