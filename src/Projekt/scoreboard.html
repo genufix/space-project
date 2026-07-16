@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="scoreboard.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mein Space Scoreboard</title>
+  </head>
+  <body data-theme="light">
+    <div id="stars-container"></div>
+    <button id="theme-toggle">Design wechseln</button>
+    <h1>Mein Spacegame</h1>
+    <div class="top-score-container">
+      <h2>TOP SCORE</h2>
+      <div id="top-score-display" class="glow-effect">0</div>
+    </div>
+
+    <div id="congrats-message" class="hidden">
+      🎉 Neuer Highscore! Du hast dich selbst übertroffen! 🎉
+    </div>
+
+    <div class="myDiv"></div>
+    <div class="fehler-meldung">
+      <div id="error-message" class="hidden"></div>
+      Augepasst! Deine Eingabe ist fehlerhaft.
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Points</th>
+          <th>Rank</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Oliver</td>
+          <td>500 Points</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>Peter</td>
+          <td>300 Points</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>Anna</td>
+          <td>200 Points</td>
+          <td>3</td>
+        </tr>
+      </tbody>
+    </table>
+    <footer>
+      <p>© 2026 Mein Spacegame. Alle Rechte vorbehalten. | Entwickelt mit 🚀</p>
+    </footer>
+    <script src="scoreboard.js"></script>
+  </body>
+</html>
