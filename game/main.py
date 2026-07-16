@@ -530,9 +530,7 @@ while running:
         current_vignette.set_alpha(int(damage_alpha))
         display_surface.blit(current_vignette, (0, 0))
 
-    # Falls deine Explosionen in deinem Projekt über eine Group laufen, musst du ggf.
-    # hier analog zu deinem ersten main.py zusätzlich explosions.update(...) und explosions.draw(...)
-    # zeichnen. (Je nachdem wie Explosion in space_game_entities implementiert ist.)
+    
 
     pygame.display.flip()
     delta_time = clock.tick(settings.FRAMERATE) / 1000
