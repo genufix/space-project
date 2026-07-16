@@ -6,30 +6,41 @@ import space_game_ui
 import space_game_utils
 import random
 import math
-from space_game_entities import Player, projectiles, Asteroid, asteroids
+
+from space_game_entities import (
+    Player,
+    projectiles,
+    Asteroid,
+    asteroids,
+
+    # === Enemy imports (kommen aus deinem ersten main.py-Setup) ===
+    Enemy,
+    enemies,
+    enemy_projectiles,
+
+    Explosion,
+)
 from space_game_physics import PhysicsWorld
 from space_game_utils import load_background, get_device_id, ApiClient, draw_hud
 from space_game_ui import Menu
+
 
 class ShieldPowerUp(pygame.sprite.Sprite):
     def __init__(self, physics_world):
         super().__init__()
         self.image = pygame.Surface((32, 32), pygame.SRCALPHA)
 
-        
         for radius in range(16, 0, -1):
             if radius > 12:
-                color = (0, 100, 255, int(150 * (1 - radius/16)))  
+                color = (0, 100, 255, int(150 * (1 - radius / 16)))
             elif radius > 6:
-                color = (0, 180, 255, 200)  
+                color = (0, 180, 255, 200)
             else:
-                color = (200, 240, 255, 255)  
+                color = (200, 240, 255, 255)
             pygame.draw.circle(self.image, color, (16, 16), radius)
 
-        
         pygame.draw.circle(self.image, (255, 255, 255, 200), (11, 11), 3)
 
-        
         edge = random.choice(["top", "bottom", "left", "right"])
         if edge == "top":
             x = random.randint(0, settings.WINDOW_WIDTH)
@@ -58,14 +69,20 @@ class ShieldPowerUp(pygame.sprite.Sprite):
         self.rect.x += self.vx * dt
         self.rect.y += self.vy * dt
 
-        if (self.rect.right < -100 or self.rect.left > settings.WINDOW_WIDTH + 100 or
-            self.rect.bottom < -100 or self.rect.top > settings.WINDOW_HEIGHT + 100):
+        if (
+            self.rect.right < -100
+            or self.rect.left > settings.WINDOW_WIDTH + 100
+            or self.rect.bottom < -100
+            or self.rect.top > settings.WINDOW_HEIGHT + 100
+        ):
             self.kill()
+
 
 powerups = pygame.sprite.Group()
 
 pygame.init()
 pygame.mixer.init()
+
 space_game_entities.configure(settings.ASSETS_PATH)
 space_game_ui.configure(settings.ASSETS_PATH)
 space_game_utils.configure(settings.ASSETS_PATH)
@@ -100,13 +117,14 @@ game_music = pygame.mixer.Sound(
 GAME_MUSIC_VOLUME = 0.5
 game_music.set_volume(GAME_MUSIC_VOLUME)
 game_music.play(loops=-1, fade_ms=1000)
+
 alarm = pygame.mixer.Sound(settings.ASSETS_PATH / "sounds" / "alarm" / "loop_3.wav")
 alarm.set_volume(0.3)
+
 impact = pygame.mixer.Sound(settings.ASSETS_PATH / "sounds" / "impact" / "blast_1.wav")
 impact.set_volume(0.5)
-death_sound = pygame.mixer.Sound(
-    settings.ASSETS_PATH / "sounds" / "impact" / "loose_1.wav"
-)
+
+death_sound = pygame.mixer.Sound(settings.ASSETS_PATH / "sounds" / "impact" / "loose_1.wav")
 death_sound.set_volume(0.2)
 
 player = Player(
@@ -120,7 +138,13 @@ last_asteroid_spawn = 0
 asteroid_cooldown = 1000
 
 last_shield_spawn = pygame.time.get_ticks()
-shield_cooldown = 15000  
+shield_cooldown = 15000
+
+# ================= Enemy Hilfsvariablen =================
+last_enemy_spawn = pygame.time.get_ticks()
+enemy_cooldown = 9000  # Gegner selten
+MAX_ENEMIES = 2
+# =======================================================
 
 api_client = ApiClient(settings.API_BASE_URL)
 device_id = get_device_id(settings.ASSETS_PATH / ".." / "device_id.txt")
@@ -135,8 +159,18 @@ vignette_blue = pygame.Surface((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT), 
 vignette_width = 60
 for i in range(vignette_width):
     alpha = int(180 * (1 - i / vignette_width))
-    pygame.draw.rect(vignette_red, (255, 0, 0, alpha), (i, i, settings.WINDOW_WIDTH - 2 * i, settings.WINDOW_HEIGHT - 2 * i), 1)
-    pygame.draw.rect(vignette_blue, (0, 150, 255, alpha), (i, i, settings.WINDOW_WIDTH - 2 * i, settings.WINDOW_HEIGHT - 2 * i), 1)
+    pygame.draw.rect(
+        vignette_red,
+        (255, 0, 0, alpha),
+        (i, i, settings.WINDOW_WIDTH - 2 * i, settings.WINDOW_HEIGHT - 2 * i),
+        1,
+    )
+    pygame.draw.rect(
+        vignette_blue,
+        (0, 150, 255, alpha),
+        (i, i, settings.WINDOW_WIDTH - 2 * i, settings.WINDOW_HEIGHT - 2 * i),
+        1,
+    )
 
 damage_alpha = 0.0
 vignette_color = "red"
@@ -168,9 +202,9 @@ while running:
             game_start_time += pygame.time.get_ticks() - pause_started
             clock.tick()
 
-  
     display_surface.fill((0, 0, 0))  # optional: verhindert Artefakte
 
+    # ================= Camera shake =================
     if shake_enabled and delta_time > 0:
         cx, cy = player.rect.center
         dx = cx - last_player_center[0]
@@ -178,18 +212,15 @@ while running:
         player_movement_speed = math.hypot(dx, dy) / delta_time  # px/s
         last_player_center = (cx, cy)
 
-        
-        t = min(player_movement_speed / 450.0, 1.0)  
+        t = min(player_movement_speed / 450.0, 1.0)
         shake_amount = shake_strength * t
 
-        
         shake_x = int((random.random() - 0.5) * 2 * shake_amount)
         shake_y = int((random.random() - 0.5) * 2 * shake_amount)
     else:
-       
         shake_x, shake_y = 0, 0
+    # ===============================================
 
-    
     display_surface.blit(background, (shake_x, shake_y))
 
     time_lived = (pygame.time.get_ticks() - game_start_time) / 1000
@@ -199,9 +230,23 @@ while running:
         if shield_time_left < 0:
             shield_time_left = 0
 
+    # Physics step
     asteroid_world.step(delta_time)
     player_world.step(delta_time)
 
+    # ================= Enemy AI update + spawn =================
+    # (Dein Enemy muss update(delta_time, player, asteroids) unterstützen,
+    #  so wie in deinem ersten main.py)
+    enemies.update(delta_time, player, asteroids)
+
+    current_time = pygame.time.get_ticks()
+    if len(enemies) < MAX_ENEMIES and current_time - last_enemy_spawn >= enemy_cooldown:
+        Enemy()
+        last_enemy_spawn = current_time
+    # ===========================================================
+
+    # ===================== Collisions ===========================
+    # Projektile <-> Asteroiden
     projectile_asteroid_collisions = pygame.sprite.groupcollide(
         projectiles, asteroids, True, True
     )
@@ -209,6 +254,7 @@ while running:
         player.asteroids_destroyed += len(hit_asteroids)
         impact.play()
 
+    # Projektile <-> Powerups (Shield)
     projectile_powerup_collisions = pygame.sprite.groupcollide(
         projectiles, powerups, True, True
     )
@@ -217,6 +263,22 @@ while running:
         vignette_color = "blue"
         damage_alpha = 255.0
 
+    # Projektile <-> Gegner
+    potential_enemy_hits = pygame.sprite.groupcollide(
+        projectiles, enemies, False, False
+    )
+    for projectile, hit_enemies in potential_enemy_hits.items():
+        real_hits = [enemy for enemy in hit_enemies if enemy is not projectile.owner]
+        if not real_hits:
+            continue
+
+        projectile.kill()
+        for enemy in real_hits:
+            if enemy.take_damage():
+                Explosion(enemy.rect.center)
+                impact.play()
+
+    # Spieler <-> Asteroiden (mit Shield)
     if pygame.sprite.spritecollide(player, asteroids, dokill=True):
         if shield_time_left > 0:
             vignette_color = "blue"
@@ -227,6 +289,7 @@ while running:
             impact.play()
             vignette_color = "red"
             damage_alpha = 255.0
+
             if player.lives == 0:
                 alarm.stop()
                 game_music.stop()
@@ -250,16 +313,24 @@ while running:
                     projectiles.empty()
                     for pw in powerups.sprites():
                         pw.kill()
+
+                    # Enemy Cleanup
+                    for e in enemies.sprites():
+                        e.kill()
+                    enemy_projectiles.empty()
+
                     player_world.remove(player.physics_body)
                     player = Player(
                         (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
                         physics_world=player_world,
                     )
+
                     game_start_time = pygame.time.get_ticks()
                     last_asteroid_spawn = 0
                     last_shield_spawn = pygame.time.get_ticks()
                     damage_alpha = 0.0
                     shield_time_left = 0.0
+
                     game_music.play(loops=-1, fade_ms=1000)
                     clock.tick()
                 else:
@@ -268,11 +339,143 @@ while running:
             elif player.lives == 1:
                 alarm.play()
 
+    # Spieler <-> Gegner-Projektile (mit Shield)
+    if pygame.sprite.spritecollide(player, enemy_projectiles, dokill=True):
+        if shield_time_left > 0:
+            vignette_color = "blue"
+            damage_alpha = 255.0
+            impact.play()
+        else:
+            player.lives -= 1
+            impact.play()
+            vignette_color = "red"
+            damage_alpha = 255.0
+
+            if player.lives == 0:
+                alarm.stop()
+                game_music.stop()
+                death_sound.play()
+
+                if player_id is not None:
+                    try:
+                        api_client.submit_score(
+                            player_id, player.asteroids_destroyed, time_lived
+                        )
+                    except httpx.HTTPError:
+                        print("Score konnte nicht gesendet werden.")
+
+                if menu.death_screen(
+                    player.asteroids_destroyed,
+                    time_lived,
+                    background=display_surface.copy(),
+                ):
+                    for asteroid in asteroids.sprites():
+                        asteroid.kill()
+                    projectiles.empty()
+                    for pw in powerups.sprites():
+                        pw.kill()
+
+                    for e in enemies.sprites():
+                        e.kill()
+                    enemy_projectiles.empty()
+
+                    player_world.remove(player.physics_body)
+                    player = Player(
+                        (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
+                        physics_world=player_world,
+                    )
+
+                    game_start_time = pygame.time.get_ticks()
+                    last_asteroid_spawn = 0
+                    last_shield_spawn = pygame.time.get_ticks()
+                    damage_alpha = 0.0
+                    shield_time_left = 0.0
+
+                    game_music.play(loops=-1, fade_ms=1000)
+                    clock.tick()
+                else:
+                    running = False
+                continue
+            elif player.lives == 1:
+                alarm.play()
+
+    # Spieler rammt Gegner (dokill=True, optional Explosion)
+    rammed_enemies = pygame.sprite.spritecollide(player, enemies, dokill=True)
+    if rammed_enemies:
+        for enemy in rammed_enemies:
+            Explosion(enemy.rect.center)
+            impact.play()
+
+        # Schaden durch Rammen wie beim Asteroid-Block
+        if shield_time_left > 0:
+            vignette_color = "blue"
+            damage_alpha = 255.0
+            impact.play()
+        else:
+            player.lives -= 1
+            impact.play()
+            vignette_color = "red"
+            damage_alpha = 255.0
+
+            if player.lives == 0:
+                alarm.stop()
+                game_music.stop()
+                death_sound.play()
+
+                if player_id is not None:
+                    try:
+                        api_client.submit_score(
+                            player_id, player.asteroids_destroyed, time_lived
+                        )
+                    except httpx.HTTPError:
+                        print("Score konnte nicht gesendet werden.")
+
+                if menu.death_screen(
+                    player.asteroids_destroyed,
+                    time_lived,
+                    background=display_surface.copy(),
+                ):
+                    for asteroid in asteroids.sprites():
+                        asteroid.kill()
+                    projectiles.empty()
+                    for pw in powerups.sprites():
+                        pw.kill()
+
+                    # Enemies schon dokill=True, aber sicherheitshalber:
+                    for e in enemies.sprites():
+                        e.kill()
+                    enemy_projectiles.empty()
+
+                    player_world.remove(player.physics_body)
+                    player = Player(
+                        (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
+                        physics_world=player_world,
+                    )
+
+                    game_start_time = pygame.time.get_ticks()
+                    last_asteroid_spawn = 0
+                    last_shield_spawn = pygame.time.get_ticks()
+                    damage_alpha = 0.0
+                    shield_time_left = 0.0
+
+                    game_music.play(loops=-1, fade_ms=1000)
+                    clock.tick()
+                else:
+                    running = False
+                continue
+            elif player.lives == 1:
+                alarm.play()
+
+    # ================= Update Entities =================
     projectiles.update(delta_time)
     asteroids.update(delta_time)
     powerups.update(delta_time)
 
+    # Enemy projectiles updaten
+    enemy_projectiles.update(delta_time)
+
     player.update(delta_time)
+    # ===================================================
 
     current_time = pygame.time.get_ticks()
     if current_time - last_asteroid_spawn >= asteroid_cooldown:
@@ -283,17 +486,25 @@ while running:
         powerups.add(ShieldPowerUp(asteroid_world))
         last_shield_spawn = current_time
 
-   
+    # ===================== Rendering =====================
     for p in projectiles.sprites():
         display_surface.blit(p.image, (p.rect.x + shake_x, p.rect.y + shake_y))
 
     for a in asteroids.sprites():
         display_surface.blit(a.image, (a.rect.x + shake_x, a.rect.y + shake_y))
 
+    # Enemies rendern
+    for e in enemies.sprites():
+        display_surface.blit(e.image, (e.rect.x + shake_x, e.rect.y + shake_y))
+
+    # Enemy projectiles rendern
+    for ep in enemy_projectiles.sprites():
+        display_surface.blit(ep.image, (ep.rect.x + shake_x, ep.rect.y + shake_y))
+
     for pw in powerups.sprites():
         display_surface.blit(pw.image, (pw.rect.x + shake_x, pw.rect.y + shake_y))
-   
 
+    # Shield Visual
     if shield_time_left > 0:
         pygame.draw.circle(
             display_surface,
@@ -303,12 +514,13 @@ while running:
             2
         )
 
-    # Player mit Offset
+    # Player
     display_surface.blit(player.image, (player.rect.x + shake_x, player.rect.y + shake_y))
 
-    # HUD NICHT schütteln (damit es lesbar bleibt)
+    # HUD (nicht schütteln)
     draw_hud(player.lives, player.asteroids_destroyed, time_lived)
 
+    # Vignette Damage Overlay
     if damage_alpha > 0:
         damage_alpha -= FADE_SPEED * delta_time
         if damage_alpha < 0:
@@ -318,8 +530,11 @@ while running:
         current_vignette.set_alpha(int(damage_alpha))
         display_surface.blit(current_vignette, (0, 0))
 
-    pygame.display.flip()
+    # Falls deine Explosionen in deinem Projekt über eine Group laufen, musst du ggf.
+    # hier analog zu deinem ersten main.py zusätzlich explosions.update(...) und explosions.draw(...)
+    # zeichnen. (Je nachdem wie Explosion in space_game_entities implementiert ist.)
 
+    pygame.display.flip()
     delta_time = clock.tick(settings.FRAMERATE) / 1000
 
 pygame.quit()
