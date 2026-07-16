@@ -43,9 +43,9 @@ def spieler_loeschen(name):
         cursor.execute("DELETE FROM players WHERE name = ?",(name,))
         conn.commit()
 
-spieler_loeschen("GalaxyGreta")
-spieler_loeschen("AstroAlex")
-spieler_loeschen("NebulaNiko")
-alle_scores_anzeigen()
+#spieler_loeschen("GalaxyGreta")
+#spieler_loeschen("AstroAlex")
+#spieler_loeschen("NebulaNiko")
+#alle_scores_anzeigen()
 
 
