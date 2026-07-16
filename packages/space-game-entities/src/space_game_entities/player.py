@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         position: tuple[float, float],
         *groups,
         ship: ShipType = ShipType.CLASSIC,
-        color: ShipColor = ShipColor.RED,
+        color: ShipColor = ShipColor.BLUE,
         speed: float = 450,
         cooldown: int = 500,
         physics_world=None,

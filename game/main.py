@@ -6,13 +6,12 @@ import space_game_entities
 import space_game_ui
 import space_game_utils
 from space_game_entities import Player, projectiles, Asteroid, asteroids
+from space_game_physics import PhysicsWorld
 from space_game_utils import draw_hud, load_background, get_device_id
 from space_game_ui import Menu
 
 device_id = get_device_id(settings.ASSETS_PATH / ".." / "device_id.txt")
 
-
-pygame.mixer.init()
 # Mixer initialisieren (Menu spielt bereits eigene Sounds, Player einen Schuss-Sound)
 pygame.mixer.init()
 
@@ -28,8 +27,15 @@ display_surface = pygame.display.set_mode(
 pygame.display.set_caption("Space Shooter Game")
 clock = pygame.time.Clock()
 delta_time = 0
+# Physik-Welten erzeugen
+asteroid_world = PhysicsWorld()
+player_world = PhysicsWorld(damping=0.15)
+
 # Spieler initialisieren
-player = Player((settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2))
+player = Player(
+    (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
+    physics_world=player_world,
+)
 # Zeitpunkt merken, an dem das Spiel gestartet ist
 game_start_time = pygame.time.get_ticks()
 # Asteroid Hilfsvariablen
@@ -91,6 +97,9 @@ while running:
 
     # 3. Spiellogik aktualisieren
     time_lived = (pygame.time.get_ticks() - game_start_time) / 1000
+    # Physik-Simulationen einen Schritt weiter berechnen
+    asteroid_world.step(delta_time)
+    player_world.step(delta_time)
 
     # Kollision: Projektile <-> Asteroiden
     projectile_asteroid_collisions = pygame.sprite.groupcollide(
@@ -123,9 +132,14 @@ while running:
                 background=display_surface.copy(),
             ):
                 # Neue Runde: Spielfeld leeren und Spielzustand zurücksetzen
-                asteroids.empty()
+                for asteroid in asteroids.sprites():
+                    asteroid.kill()  # räumt auch den Physik-Body aus der Welt
                 projectiles.empty()
-                player = Player((settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2))
+                player_world.remove(player.physics_body)
+                player = Player(
+                    (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
+                    physics_world=player_world,
+                )
                 game_start_time = pygame.time.get_ticks()
                 last_asteroid_spawn = 0
                 game_music.play(loops=-1, fade_ms=1000)
@@ -140,7 +154,7 @@ while running:
     player.update(delta_time)
     current_time = pygame.time.get_ticks()
     if current_time - last_asteroid_spawn >= asteroid_cooldown:
-        Asteroid()
+        Asteroid(physics_world=asteroid_world)
         last_asteroid_spawn = current_time
 
     # 4. Objekte auf der Zeichenfläche zeichnen (Rendering)
