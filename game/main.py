@@ -9,16 +9,23 @@ from space_game_physics import PhysicsWorld
 from space_game_utils import load_background, get_device_id, ApiClient, draw_hud
 from space_game_ui import Menu
 
+
 pygame.init()
 pygame.mixer.init()
 space_game_entities.configure(settings.ASSETS_PATH)
 space_game_ui.configure(settings.ASSETS_PATH)
 space_game_utils.configure(settings.ASSETS_PATH)
 
-display_surface = pygame.display.set_mode(
-    (settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT)
-)
+# Create the window first, then load the icon from your assets folder
+display_surface = pygame.display.set_mode((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT))
 pygame.display.set_caption("Space Shooter")
+
+icon_path = str(settings.ASSETS_PATH / "images" / "icons.png")
+pygame.display.set_icon(pygame.image.load(icon_path))
+
+pygame.display.set_caption("Space Shooter Game")
+
+pygame.display.set_caption("Space Shooter Game")
 clock = pygame.time.Clock()
 delta_time = 0
 
