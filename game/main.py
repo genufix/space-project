@@ -4,11 +4,65 @@ import settings
 import space_game_entities
 import space_game_ui
 import space_game_utils
+import random
+import math
 from space_game_entities import Player, projectiles, Asteroid, asteroids
 from space_game_physics import PhysicsWorld
 from space_game_utils import load_background, get_device_id, ApiClient, draw_hud
 from space_game_ui import Menu
 
+class ShieldPowerUp(pygame.sprite.Sprite):
+    def __init__(self, physics_world):
+        super().__init__()
+        self.image = pygame.Surface((32, 32), pygame.SRCALPHA)
+
+        # Generiert eine detaillierte, glühende Sci-Fi Orb-Textur
+        for radius in range(16, 0, -1):
+            if radius > 12:
+                color = (0, 100, 255, int(150 * (1 - radius/16)))  # Äußerer Schein
+            elif radius > 6:
+                color = (0, 180, 255, 200)  # Kern-Körper
+            else:
+                color = (200, 240, 255, 255)  # Heller Energie-Kern
+            pygame.draw.circle(self.image, color, (16, 16), radius)
+
+        # Ein kleiner weißer Licht-Reflex für 3D-Look
+        pygame.draw.circle(self.image, (255, 255, 255, 200), (11, 11), 3)
+
+        # Spawnt am Bildschirmrand, analog zur Logik der Asteroiden
+        edge = random.choice(["top", "bottom", "left", "right"])
+        if edge == "top":
+            x = random.randint(0, settings.WINDOW_WIDTH)
+            y = -32
+            angle = random.uniform(math.pi / 4, 3 * math.pi / 4)
+        elif edge == "bottom":
+            x = random.randint(0, settings.WINDOW_WIDTH)
+            y = settings.WINDOW_HEIGHT + 32
+            angle = random.uniform(-3 * math.pi / 4, -math.pi / 4)
+        elif edge == "left":
+            x = -32
+            y = random.randint(0, settings.WINDOW_HEIGHT)
+            angle = random.uniform(-math.pi / 4, math.pi / 4)
+        else:
+            x = settings.WINDOW_WIDTH + 32
+            y = random.randint(0, settings.WINDOW_HEIGHT)
+            angle = random.uniform(3 * math.pi / 4, 5 * math.pi / 4)
+
+        self.rect = self.image.get_rect(center=(x, y))
+
+        speed = random.uniform(80, 150)
+        self.vx = math.cos(angle) * speed
+        self.vy = math.sin(angle) * speed
+
+    def update(self, dt):
+        self.rect.x += self.vx * dt
+        self.rect.y += self.vy * dt
+
+        if (self.rect.right < -100 or self.rect.left > settings.WINDOW_WIDTH + 100 or
+            self.rect.bottom < -100 or self.rect.top > settings.WINDOW_HEIGHT + 100):
+            self.kill()
+
+powerups = pygame.sprite.Group()
 
 pygame.init()
 pygame.mixer.init()
@@ -16,7 +70,6 @@ space_game_entities.configure(settings.ASSETS_PATH)
 space_game_ui.configure(settings.ASSETS_PATH)
 space_game_utils.configure(settings.ASSETS_PATH)
 
-# Create the window first, then load the icon from your assets folder
 display_surface = pygame.display.set_mode((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT))
 pygame.display.set_caption("Space Shooter")
 
@@ -25,7 +78,6 @@ pygame.display.set_icon(pygame.image.load(icon_path))
 
 pygame.display.set_caption("Space Shooter Game")
 
-pygame.display.set_caption("Space Shooter Game")
 clock = pygame.time.Clock()
 delta_time = 0
 
@@ -65,7 +117,11 @@ player = Player(
 game_start_time = pygame.time.get_ticks()
 
 last_asteroid_spawn = 0
-asteroid_cooldown = 1000  # in ms
+asteroid_cooldown = 1000
+
+last_shield_spawn = pygame.time.get_ticks()
+shield_cooldown = 15000  # 15 Sekunden Cooldown für hohe Seltenheit
+
 api_client = ApiClient(settings.API_BASE_URL)
 device_id = get_device_id(settings.ASSETS_PATH / ".." / "device_id.txt")
 try:
@@ -73,9 +129,33 @@ try:
 except httpx.HTTPError:
     print("Konnte keine Verbindung zur API aufbauen. Der Score wird nicht gespeichert.")
     player_id = None
+
+vignette_red = pygame.Surface((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT), pygame.SRCALPHA)
+vignette_blue = pygame.Surface((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT), pygame.SRCALPHA)
+vignette_width = 60
+for i in range(vignette_width):
+    alpha = int(180 * (1 - i / vignette_width))
+    pygame.draw.rect(vignette_red, (255, 0, 0, alpha), (i, i, settings.WINDOW_WIDTH - 2 * i, settings.WINDOW_HEIGHT - 2 * i), 1)
+    pygame.draw.rect(vignette_blue, (0, 150, 255, alpha), (i, i, settings.WINDOW_WIDTH - 2 * i, settings.WINDOW_HEIGHT - 2 * i), 1)
+
+damage_alpha = 0.0
+vignette_color = "red"
+FADE_SPEED = 500.0
+
+shield_time_left = 0.0
+
+# -------------------- CAMERA SHAKE (HINZUGEFÜGT) --------------------
+shake_enabled = True
+shake_strength = 3.0   # wie stark (Pixel)
+shake_speed = 15.0      # nur für Gefühl/Feintuning
+last_player_center = player.rect.center
+player_movement_speed = 0.0
+shake_x = 0
+shake_y = 0
+# -------------------------------------------------------------------
+
 running = True
 while running:
-    # 1. Eingaben (Events) abfragen
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -86,11 +166,41 @@ while running:
                 running = False
             game_music.set_volume(GAME_MUSIC_VOLUME)
             game_start_time += pygame.time.get_ticks() - pause_started
-            clock.tick()  # Pause nicht in die nächste Delta Time einrechnen
+            clock.tick()
 
-    display_surface.blit(background)
+  
+    display_surface.fill((0, 0, 0))  # optional: verhindert Artefakte
+
+    # --- Shake-Speed aus tatsächlicher Positionsänderung ableiten (ohne Zugriff auf vx/vy) ---
+    # Wir nutzen die zuletzt bekannte Player-Position + dt.
+    # Wenn dt=0, kein Shake.
+    if shake_enabled and delta_time > 0:
+        cx, cy = player.rect.center
+        dx = cx - last_player_center[0]
+        dy = cy - last_player_center[1]
+        player_movement_speed = math.hypot(dx, dy) / delta_time  # px/s
+        last_player_center = (cx, cy)
+
+        # Ab welcher Geschwindigkeit Shake sichtbar wird:
+        t = min(player_movement_speed / 450.0, 1.0)  # 450 ist Feintuning
+        shake_amount = shake_strength * t
+
+        # Zufalls-Offset
+        shake_x = int((random.random() - 0.5) * 2 * shake_amount)
+        shake_y = int((random.random() - 0.5) * 2 * shake_amount)
+    else:
+       
+        shake_x, shake_y = 0, 0
+
+    # Hintergrund mit Offset
+    display_surface.blit(background, (shake_x, shake_y))
 
     time_lived = (pygame.time.get_ticks() - game_start_time) / 1000
+
+    if shield_time_left > 0:
+        shield_time_left -= delta_time
+        if shield_time_left < 0:
+            shield_time_left = 0
 
     asteroid_world.step(delta_time)
     player_world.step(delta_time)
@@ -98,51 +208,73 @@ while running:
     projectile_asteroid_collisions = pygame.sprite.groupcollide(
         projectiles, asteroids, True, True
     )
-    for destroyed_asteroids in projectile_asteroid_collisions.values():
-        player.asteroids_destroyed += len(destroyed_asteroids)
+    for hit_asteroids in projectile_asteroid_collisions.values():
+        player.asteroids_destroyed += len(hit_asteroids)
         impact.play()
+
+    projectile_powerup_collisions = pygame.sprite.groupcollide(
+        projectiles, powerups, True, True
+    )
+    if projectile_powerup_collisions:
+        shield_time_left = 5.0
+        vignette_color = "blue"
+        damage_alpha = 255.0
 
     if pygame.sprite.spritecollide(player, asteroids, dokill=True):
-        player.lives -= 1
-        impact.play()
-        if player.lives == 0:
-            alarm.stop()
-            game_music.stop()
-            death_sound.play()
+        if shield_time_left > 0:
+            vignette_color = "blue"
+            damage_alpha = 255.0
+            impact.play()
+        else:
+            player.lives -= 1
+            impact.play()
+            vignette_color = "red"
+            damage_alpha = 255.0
+            if player.lives == 0:
+                alarm.stop()
+                game_music.stop()
+                death_sound.play()
 
-            if player_id is not None:
-                try:
-                    api_client.submit_score(
-                        player_id, player.asteroids_destroyed, time_lived
+                if player_id is not None:
+                    try:
+                        api_client.submit_score(
+                            player_id, player.asteroids_destroyed, time_lived
+                        )
+                    except httpx.HTTPError:
+                        print("Score konnte nicht gesendet werden.")
+
+                if menu.death_screen(
+                    player.asteroids_destroyed,
+                    time_lived,
+                    background=display_surface.copy(),
+                ):
+                    for asteroid in asteroids.sprites():
+                        asteroid.kill()
+                    projectiles.empty()
+                    for pw in powerups.sprites():
+                        pw.kill()
+                    player_world.remove(player.physics_body)
+                    player = Player(
+                        (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
+                        physics_world=player_world,
                     )
-                except httpx.HTTPError:
-                    print("Score konnte nicht gesendet werden.")
-
-            if menu.death_screen(
-                player.asteroids_destroyed,
-                time_lived,
-                background=display_surface.copy(),
-            ):
-                for asteroid in asteroids.sprites():
-                    asteroid.kill() 
-                projectiles.empty()
-                player_world.remove(player.physics_body)
-                player = Player(
-                    (settings.WINDOW_WIDTH / 2, settings.WINDOW_HEIGHT / 2),
-                    physics_world=player_world,
-                )
-                game_start_time = pygame.time.get_ticks()
-                last_asteroid_spawn = 0
-                game_music.play(loops=-1, fade_ms=1000)
-                clock.tick() 
-            else:
-                running = False
-            continue
-        elif player.lives == 1:
-            alarm.play()
+                    game_start_time = pygame.time.get_ticks()
+                    last_asteroid_spawn = 0
+                    last_shield_spawn = pygame.time.get_ticks()
+                    damage_alpha = 0.0
+                    shield_time_left = 0.0
+                    game_music.play(loops=-1, fade_ms=1000)
+                    clock.tick()
+                else:
+                    running = False
+                continue
+            elif player.lives == 1:
+                alarm.play()
 
     projectiles.update(delta_time)
     asteroids.update(delta_time)
+    powerups.update(delta_time)
+
     player.update(delta_time)
 
     current_time = pygame.time.get_ticks()
@@ -150,13 +282,47 @@ while running:
         Asteroid(physics_world=asteroid_world)
         last_asteroid_spawn = current_time
 
-    projectiles.draw(display_surface)
-    asteroids.draw(display_surface)
-    display_surface.blit(player.image, player.rect)
+    if current_time - last_shield_spawn >= shield_cooldown:
+        powerups.add(ShieldPowerUp(asteroid_world))
+        last_shield_spawn = current_time
+
+   
+    for p in projectiles.sprites():
+        display_surface.blit(p.image, (p.rect.x + shake_x, p.rect.y + shake_y))
+
+    for a in asteroids.sprites():
+        display_surface.blit(a.image, (a.rect.x + shake_x, a.rect.y + shake_y))
+
+    for pw in powerups.sprites():
+        display_surface.blit(pw.image, (pw.rect.x + shake_x, pw.rect.y + shake_y))
+   
+
+    if shield_time_left > 0:
+        pygame.draw.circle(
+            display_surface,
+            (0, 150, 255),
+            (player.rect.centerx + shake_x, player.rect.centery + shake_y),
+            int(player.rect.width * 0.8),
+            2
+        )
+
+    # Player mit Offset
+    display_surface.blit(player.image, (player.rect.x + shake_x, player.rect.y + shake_y))
+
+    # HUD NICHT schütteln (damit es lesbar bleibt)
     draw_hud(player.lives, player.asteroids_destroyed, time_lived)
+
+    if damage_alpha > 0:
+        damage_alpha -= FADE_SPEED * delta_time
+        if damage_alpha < 0:
+            damage_alpha = 0
+
+        current_vignette = vignette_blue if vignette_color == "blue" else vignette_red
+        current_vignette.set_alpha(int(damage_alpha))
+        display_surface.blit(current_vignette, (0, 0))
 
     pygame.display.flip()
 
-    delta_time = clock.tick(settings.FRAMERATE) / 1000  # ms -> Sekunden
+    delta_time = clock.tick(settings.FRAMERATE) / 1000
 
 pygame.quit()
